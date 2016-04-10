@@ -1,0 +1,97 @@
+<?php
+/*+***********************************************************************************
+ * The contents of this file are subject to the vtiger CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  vtiger CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
+ * All Rights Reserved.
+ * Contributor(s): YetiForce.com
+ *************************************************************************************/
+$languageStrings = [
+	'Account Name' => 'Organisation',
+	'Account No' => 'Organisation Id',
+	'Accounts' => 'Organisation',
+	'Analyst'=>'Analyste',
+	'Competitor'=>'Concurrent',
+	'Customer'=>'Client',
+	'Email' => 'Email',
+	'Employees' => 'Employés',
+	'industry' => 'Industrie',
+	'Integrator'=>'Integrateur',
+	'Investor'=>'Investisseur',
+	'LBL_ACCOUNT_INFORMATION' => 'Organisation Détails',
+	'LBL_ADD_RECORD' => 'Ajouter un Organisation',
+	'LBL_COPY_BILLING_ADDRESS' => 'Copier adresse de facturation',
+	'LBL_COPY_SHIPPING_ADDRESS' => 'Copier adresse de livraison',
+	'LBL_DUPLICATES_EXIST' => 'Organisation existe déjà',
+	'LBL_END_DATE' => 'Date de fin',
+	'LBL_RECORDS_LIST' => 'Liste des organisations',
+	'LBL_SHOW_ACCOUNT_HIERARCHY' => 'Hierarchie des organisations',
+	'LBL_START_DATE' => 'Date de début',
+	'Member Of' => 'Membre de',
+	'Other Email' => 'Email (autre)',
+	'Other Phone' => 'Téléphone (autre)',
+	'Ownership' => 'Ownership',
+	'Phone' => 'Téléphone',
+	'Press'=>'Presse',
+	'Prospect'=>'Prospect',
+	'Reseller'=>'Revendeur',
+	'SIC Code' => 'Code SIC',
+	'SINGLE_Accounts' => 'Organisation',
+	'Ticker Symbol' => 'Symbole boursier',
+	'Payment balance' => 'Balance des paiements',
+	//OpenSaaS
+	'LBL_CREATING_NEW' => 'Nouveau',
+	'Fax' => 'Fax',
+
+	//PICKLIST VALUES
+	'PLL_NATURAL_PERSON' => 'Individuel',
+	'PLL_BUSINESS_ACTIVITY' => 'Sole proprietorship', 
+	'PLL_GENERAL_PARTNERSHIP' => 'Registered partnership',
+	'PLL_PROFESSIONAL_PARTNERSHIP' => 'Professional partnership',
+	'PLL_LIMITED_PARTNERSHIP' => 'Limited partnership',
+	'PLL_JOINT_STOCK_PARTNERSHIP' => 'Limited joint-stock partnership', 
+	'PLL_LIMITED_LIABILITY_COMPANY' => 'Limited liability partnership',
+	'PLL_STOCK_OFFERING_COMPANY' => 'Joint-stock partnership',
+	'PLL_GOVERMENT_ENTERPRISE' => 'Goverment enterprise',
+	'PLL_ASSOCIATION' => 'Association',
+	'PLL_COOPERATIVE' => 'Cooperative',
+	'PLL_FOUNDATION' => 'Fondation',
+	'PLL_EUROPEAN_PARTNERSHIP' => 'European partnership',
+	'PLL_EUROPEAN_ECONOMIC_INTEREST_GROUPING' => 'European economic interest grouping',
+	'PLL_EUROPEAN_COOPERATIVE' => 'European cooperative', 
+	'PLL_EUROPEAN_PRIVATE_PARTNERSHIP' => 'European private partnership',
+	'PLL_EUROPEAN_RECIPROCAL_PARTNERSHIP' => 'European mutual partnership',
+	'PLL_EUROPEAN_ASSOCIATION' => 'European association',
+	'PLL_UFCIITS' => 'Undertakings for collective invesment in transferable securites',
+	'LBL_ACCOUNTS_LIST_TREE_ALERT' => 'List of accounts depends on selected filter and selected products in tree.',
+
+	'Calculations all'=>'All calculations',
+	'Calculations accepted'=>'Calculations accepted',
+	'Offers all'=>'All quotes',
+	'Offers accepted'=>'Quotes accepted',
+	'Orders all'=>'All orders',
+	'Orders accepted'=>'Orders accepted',
+	'Total time worked'=>'Total working time',
+	'Total sale'=>'Total sales',
+    'LBL_ADVANCED_BLOCK' => 'Advanced Block',
+    'LBL_CONTACT_INFO' => 'Contact Info',
+    'LBL_REGISTRATION_INFO' => 'Registration Details',
+	'LBL_FINANSIAL_SUMMARY' => 'Financial summary',
+	'Balance' => 'Balance',
+	'Average profit sales order' => 'Average profit sales order (%)',
+	'Approval for email'=>'Permission to send emails',
+	'Approval for phone calls'=>'Permission to call',
+	'LBL_CONVERTED_FROM_LEAD' => 'Converted from lead',
+	'LBL_LEGAL_FORM' => 'Legal form',
+	'LBL_INVENTORY_BALANCE' => 'balance',
+	'LBL_DISCOUNT' => 'Discount',
+	'LBL_CREDIT_LIMIT' => 'Credit limit',
+];
+$jsLanguageStrings = [
+	'JS_DUPLICTAE_CREATION_CONFIRMATION' => 'Account Name already exists. Do you want to create a duplicate record?',
+	'LBL_DELETE_CONFIRMATION' => 'Deleting this Account will remove its related Opportunities & Quotes. Are you sure you want to delete this Account?',
+	'LBL_MASS_DELETE_CONFIRMATION' => 'Deleting this Account(s) will remove its related Opportunities & Quotes. Are you sure you want to delete the selected records?',
+	'LBL_RELATED_RECORD_DELETE_CONFIRMATION' => 'Voulez-vous vraiment supprimer cet enregistrement?',
+];
