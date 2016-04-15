@@ -260,42 +260,48 @@ var Vtiger_Index_Js = {
 
 	},
 	registerNotifications: function () {
-		$(".notificationsNotice ul a").click(function (e) {
-			var mode = $(this).data('mode');
+		$(".notificationsNotice .sendNotification").click(function (e) {
 			var modalWindowParams = {
-				url: 'index.php?module=Home&view=CreateNotificationModal&mode=' + mode,
+				url: 'index.php?module=Home&view=CreateNotificationModal',
+				id: 'CreateNotificationModal',
 				cb: function (container) {
-					var form, text, link, htmlLink, eol;
+					var form, text, link, htmlLink;
+
 					text = container.find('#notificationMessage');
 					form = container.find('form');
 					container.find('#notificationTitle').val(app.getPageTitle());
 					link = $("<a/>", {
 						name: "link",
 						href: window.location.href,
-						text: window.location.href
+						text: app.vtranslate('JS_NOTIFICATION_LINK')
 					});
 					htmlLink = $('<div>').append(link.clone()).html();
-					if (mode == 'createMail') {
-						eol = '<br/><hr/>';
-					} else {
-						eol = '\n';
-					}
-					text.val(eol + htmlLink);
-					if (mode == 'createMail') {
-						var ckEditorInstance = new Vtiger_CkEditor_Js();
-						ckEditorInstance.loadCkEditor(text, {});
-					}
+					text.val('<br/><hr/>' + htmlLink);
+					var ckEditorInstance = new Vtiger_CkEditor_Js();
+					ckEditorInstance.loadCkEditor(text);
 					container.find(".externalMail").click(function (e) {
 						if (form.validationEngine('validate')) {
 							var editor = CKEDITOR.instances.notificationMessage;
 							var text = $('<div>' + editor.getData() + '</div>').text();
-							var emails = container.find("#notificationUsers").val().join();
-							link = $("<a/>", {
-								href: 'mailto:' + emails + '?subject=' + encodeURIComponent(container.find("#notificationTitle").val()) + '&body=' + encodeURIComponent(text)
+							var emails = [];
+							container.find("#notificationUsers option:selected").each(function (index) {
+								emails.push($(this).data('mail'))
 							});
-							link[0].click();
+							$(this).attr('href', 'mailto:' + emails.join() + '?subject=' + encodeURIComponent(container.find("#notificationTitle").val()) + '&body=' + encodeURIComponent(text))
+							app.hideModalWindow(container, 'CreateNotificationModal');
+						} else {
+							e.preventDefault();
 						}
-					})
+					});
+					container.find('[type="submit"]').click(function (e) {
+						var element = $(this);
+						form.find('[name="mode"]').val(element.data('mode'));
+					});
+					form.submit(function (e) {
+						if (form.validationEngine('validate')) {
+							app.hideModalWindow(container, 'CreateNotificationModal');
+						}
+					});
 				},
 			}
 			app.showModalWindow(modalWindowParams);
@@ -384,17 +390,12 @@ var Vtiger_Index_Js = {
 	 * Function registers event for Calendar Reminder popups
 	 */
 	registerActivityReminder: function () {
-		var activityReminder = jQuery('#activityReminder').val();
-		if (activityReminder != '') {
-			activityReminder = activityReminder * 1000;
-			var currentTime = new Date().getTime();
-			var nextActivityReminderCheck = app.cacheGet('ActivityReminderNextCheckTime', 0);
-
-			if ((currentTime - activityReminder) > nextActivityReminderCheck) {
+		var activityReminder = (parseInt(app.getMainParams('activityReminder')) || 0) * 1000;
+		if (activityReminder != 0) {
+			Vtiger_Index_Js.requestReminder();
+			window.reminder = setInterval(function () {
 				Vtiger_Index_Js.requestReminder();
-				setTimeout('Vtiger_Index_Js.requestReminder()', activityReminder);
-				app.cacheSet('ActivityReminderNextCheckTime', currentTime + parseInt(activityReminder));
-			}
+			}, activityReminder);
 		}
 	},
 	/**
@@ -420,6 +421,8 @@ var Vtiger_Index_Js = {
 					});
 				});
 			});
+		}, function (data, err) {
+			clearInterval(window.reminder);
 		});
 	},
 	refreshNumberNotifications: function (content) {
