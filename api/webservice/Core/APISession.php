@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * API Authorization class
+ * @package YetiForce.WebserviceSession
+ * @license licenses/License.html
+ * @author Mariusz Krzaczkowski <m.krzaczkowski@yetiforce.com>
+ */
 class APISession
 {
 
@@ -25,7 +31,7 @@ class APISession
 		}
 
 		$dbPortal = PearDatabase::getInstance('portal');
-		$dbPortal->insert('p_yf_sessions', $sessionData);
+		$dbPortal->insert('w_yf_sessions', $sessionData);
 		return $sessionData;
 	}
 }

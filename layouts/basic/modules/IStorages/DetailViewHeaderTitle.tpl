@@ -10,7 +10,7 @@
 ********************************************************************************/
 -->*}
 {strip}	
-	<div class="col-xs-12 col-sm-12 col-md-4">
+	<div class="col-xs-12 col-sm-12 col-md-8">
 		<div class="moduleIcon">
 			<span class="hierarchy">
 
@@ -18,7 +18,7 @@
 			<span class="detailViewIcon cursorPointer userIcon-{$MODULE}" {if $COLORLISTHANDLERS}style="background-color: {$COLORLISTHANDLERS['background']};color: {$COLORLISTHANDLERS['text']};"{/if}></span>
 		</div>
 		<div class="paddingLeft5px">
-			<h4 class="recordLabel marginbottomZero pushDown" title="{$RECORD->getName()}">
+			<h4 class="recordLabel marginbottomZero pushDown textOverflowEllipsis" title="{$RECORD->getName()}">
 				{foreach item=NAME_FIELD from=$MODULE_MODEL->getNameFields()}
 					{assign var=FIELD_MODEL value=$MODULE_MODEL->getField($NAME_FIELD)}
 					{if $FIELD_MODEL->getPermissions()}

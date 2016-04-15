@@ -25,14 +25,16 @@ class Calendar_ListView_Model extends Vtiger_ListView_Model
 				'linklabel' => 'LBL_ADD_EVENT',
 				'linkurl' => $this->getModule()->getCreateEventRecordUrl(),
 				'linkclass' => 'moduleColor_' . $moduleModel->getName(),
-				'linkicon' => ''
+				'linkicon' => '',
+				'showLabel' => 1,
 			];
 			$basicLinks[] = [
 				'linktype' => 'LISTVIEWBASIC',
 				'linklabel' => 'LBL_ADD_TASK',
 				'linkurl' => $this->getModule()->getCreateTaskRecordUrl(),
 				'linkclass' => 'moduleColor_' . $moduleModel->getName(),
-				'linkicon' => ''
+				'linkicon' => '',
+				'showLabel' => 1,
 			];
 		}
 		if (Users_Privileges_Model::isPermitted($moduleModel->getName(), 'WatchingModule')) {
@@ -107,10 +109,8 @@ class Calendar_ListView_Model extends Vtiger_ListView_Model
 	{
 		$currentUserModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
 		$moduleModel = $this->getModule();
-
-		$linkTypes = array('LISTVIEWMASSACTION');
-		$links = Vtiger_Link_Model::getAllByType($moduleModel->getId(), $linkTypes, $linkParams);
-
+		
+		$links = Vtiger_Link_Model::getAllByType($moduleModel->getId(), ['LISTVIEWMASSACTION'], $linkParams);
 
 		$massActionLinks = [];
 		if ($currentUserModel->hasModuleActionPermission($moduleModel->getId(), 'MassTransferOwnership')) {
@@ -303,6 +303,7 @@ class Calendar_ListView_Model extends Vtiger_ListView_Model
 				}
 				$query = ' ORDER BY ' . implode(',', $referenceNameFieldOrderBy);
 			} else if ($orderBy === 'smownerid') {
+				$this->get('query_generator')->setConditionField($orderByFieldName);
 				$fieldModel = Vtiger_Field_Model::getInstance('assigned_user_id', $moduleModel);
 				if ($fieldModel->getFieldDataType() == 'owner') {
 					$orderBy = 'COALESCE(' . getSqlForNameInDisplayFormat(['first_name' => 'vtiger_users.first_name', 'last_name' => 'vtiger_users.last_name'], 'Users') . ',vtiger_groups.groupname)';

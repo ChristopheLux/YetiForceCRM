@@ -29,27 +29,31 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model
 	 * @param <Array> $linkParams
 	 * @return <Array> List of Vtiger_Link_Model instances
 	 */
-	public function getSideBarLinks($linkParams)
+	public function getHederLinks($linkParams)
 	{
-		$linkTypes = array('SIDEBARLINK', 'SIDEBARWIDGET');
-		$moduleLinks = $this->getModule()->getSideBarLinks($linkParams);
+		$links = Vtiger_Link_Model::getAllByType($this->getModule()->getId(), ['LIST_VIEW_HEADER'], $linkParams);
 
-		$listLinkTypes = array('LISTVIEWSIDEBARLINK', 'LISTVIEWSIDEBARWIDGET');
-		$listLinks = Vtiger_Link_Model::getAllByType($this->getModule()->getId(), $listLinkTypes);
-
-		if ($listLinks['LISTVIEWSIDEBARLINK']) {
-			foreach ($listLinks['LISTVIEWSIDEBARLINK'] as $link) {
-				$moduleLinks['SIDEBARLINK'][] = $link;
+		$headerLinks = [];
+		$moduleModel = $this->getModule();
+		if (Users_Privileges_Model::isPermitted($moduleModel->getName(), 'WatchingModule')) {
+			$watchdog = Vtiger_Watchdog_Model::getInstance($moduleModel->getName());
+			$class = 'btn-default';
+			if ($watchdog->isWatchingModule()) {
+				$class = 'btn-info';
 			}
+			$headerLinks[] = [
+				'linktype' => 'LIST_VIEW_HEADER',
+				'linkhint' => 'BTN_WATCHING_MODULE',
+				'linkurl' => 'javascript:Vtiger_List_Js.changeWatchingModule(this)',
+				'linkclass' => $class,
+				'linkicon' => 'glyphicon glyphicon-eye-open',
+				'linkdata' => ['off' => 'btn-default', 'on' => 'btn-info', 'value' => $watchdog->isWatchingModule() ? 0 : 1],
+			];
 		}
-
-		if ($listLinks['LISTVIEWSIDEBARWIDGET']) {
-			foreach ($listLinks['LISTVIEWSIDEBARWIDGET'] as $link) {
-				$moduleLinks['SIDEBARWIDGET'][] = $link;
-			}
+		foreach ($headerLinks as $headerLink) {
+			$links['LIST_VIEW_HEADER'][] = Vtiger_Link_Model::getInstanceFromValues($headerLink);
 		}
-
-		return $moduleLinks;
+		return $links;
 	}
 
 	/**
@@ -59,32 +63,27 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model
 	 */
 	public function getListViewLinks($linkParams)
 	{
-		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$moduleModel = $this->getModule();
-
-		$linkTypes = array('LISTVIEWBASIC', 'LISTVIEW', 'LISTVIEWSETTING');
-		$links = Vtiger_Link_Model::getAllByType($moduleModel->getId(), $linkTypes, $linkParams);
+		$links = [];
 
 		$basicLinks = $this->getBasicLinks();
-
 		foreach ($basicLinks as $basicLink) {
 			$links['LISTVIEWBASIC'][] = Vtiger_Link_Model::getInstanceFromValues($basicLink);
 		}
 
-		$advancedLinks = $this->getAdvancedLinks();
-
-		foreach ($advancedLinks as $advancedLink) {
-			$links['LISTVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($advancedLink);
-		}
-
-		if ($currentUserModel->isAdminUser()) {
-
-			$settingsLinks = $this->getSettingLinks();
-			foreach ($settingsLinks as $settingsLink) {
-				$links['LISTVIEWSETTING'][] = Vtiger_Link_Model::getInstanceFromValues($settingsLink);
+		$allLinks = Vtiger_Link_Model::getAllByType($moduleModel->getId(), ['LISTVIEWBASIC', 'LISTVIEW'], $linkParams);
+		if (!empty($allLinks)) {
+			foreach ($allLinks as $type => $allLinksByType) {
+				foreach ($allLinksByType as $linkModel) {
+					$links[$type][] = $linkModel;
+				}
 			}
 		}
 
+		$advancedLinks = $this->getAdvancedLinks();
+		foreach ($advancedLinks as $advancedLink) {
+			$links['LISTVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($advancedLink);
+		}
 		return $links;
 	}
 
@@ -97,10 +96,7 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model
 	{
 		$currentUserModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
 		$moduleModel = $this->getModule();
-
-		$linkTypes = array('LISTVIEWMASSACTION');
-		$links = Vtiger_Link_Model::getAllByType($moduleModel->getId(), $linkTypes, $linkParams);
-
+		$links = Vtiger_Link_Model::getAllByType($moduleModel->getId(), ['LISTVIEWMASSACTION'], $linkParams);
 
 		$massActionLinks = [];
 		if ($currentUserModel->hasModuleActionPermission($moduleModel->getId(), 'MassEdit')) {
@@ -185,7 +181,6 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model
 			if ($orderByFieldModel && $orderByFieldModel->isReferenceField()) {
 				//IF it is reference add it in the where fields so that from clause will be having join of the table
 				$this->get('query_generator')->setConditionField($orderByFieldName);
-				//$queryGenerator->whereFields[] = $orderByFieldName;
 
 				$referenceModules = $orderByFieldModel->getReferenceList();
 				$referenceNameFieldOrderBy = [];
@@ -206,6 +201,8 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model
 				}
 				$query = ' ORDER BY ' . implode(',', $referenceNameFieldOrderBy);
 			} else if ($orderBy === 'smownerid') {
+				$this->get('query_generator')->setConditionField($orderByFieldName);
+
 				$fieldModel = Vtiger_Field_Model::getInstance('assigned_user_id', $moduleModel);
 				if ($fieldModel->getFieldDataType() == 'owner') {
 					$orderBy = 'COALESCE(' . getSqlForNameInDisplayFormat(['first_name' => 'vtiger_users.first_name', 'last_name' => 'vtiger_users.last_name'], 'Users') . ',vtiger_groups.groupname)';
@@ -281,6 +278,14 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model
 				}
 			}
 		}
+		if (!empty($sourceModule)) {
+			if (method_exists($moduleModel, 'getQueryByRelatedField')) {
+				$overrideQuery = $moduleModel->getQueryByRelatedField($this, $listQuery);
+				if (!empty($overrideQuery)) {
+					$listQuery = $overrideQuery;
+				}
+			}
+		}
 		$listQuery .= $listOrder;
 		$pageLimit = $pagingModel->getPageLimit();
 		$startIndex = $pagingModel->getStartIndex();
@@ -310,9 +315,8 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model
 
 		$index = 0;
 		foreach ($listViewEntries as $recordId => $record) {
-			$rawData = $db->query_result_rowdata($listResult, $index++);
 			$record['id'] = $recordId;
-			$listViewRecordModels[$recordId] = $moduleModel->getRecordFromArray($record, $rawData);
+			$listViewRecordModels[$recordId] = $moduleModel->getRecordFromArray($record);
 			$listViewRecordModels[$recordId]->colorList = Settings_DataAccess_Module_Model::executeColorListHandlers($moduleName, $recordId, $listViewRecordModels[$recordId]);
 		}
 		return $listViewRecordModels;
@@ -531,15 +535,6 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model
 		return $advancedLinks;
 	}
 	/*
-	 * Function to get Setting links
-	 * @return array of setting links
-	 */
-
-	public function getSettingLinks()
-	{
-		return $this->getModule()->getSettingLinks();
-	}
-	/*
 	 * Function to get Basic links
 	 * @return array of Basic links
 	 */
@@ -554,23 +549,9 @@ class Vtiger_ListView_Model extends Vtiger_Base_Model
 				'linklabel' => 'LBL_ADD_RECORD',
 				'linkurl' => $moduleModel->getCreateRecordUrl(),
 				'linkclass' => 'addButton moduleColor_' . $moduleModel->getName(),
-				'linkicon' => ''
-			];
-		}
-
-		if (Users_Privileges_Model::isPermitted($moduleModel->getName(), 'WatchingModule')) {
-			$watchdog = Vtiger_Watchdog_Model::getInstance($moduleModel->getName());
-			$class = 'btn-default';
-			if ($watchdog->isWatchingModule()) {
-				$class = 'btn-info';
-			}
-			$basicLinks[] = [
-				'linktype' => 'LISTVIEWBASIC',
-				'linkhint' => 'BTN_WATCHING_MODULE',
-				'linkurl' => 'javascript:Vtiger_List_Js.changeWatchingModule(this)',
-				'linkclass' => $class,
-				'linkicon' => 'glyphicon glyphicon-eye-open',
-				'linkdata' => ['off' => 'btn-default', 'on' => 'btn-info', 'value' => $watchdog->isWatchingModule() ? 0 : 1],
+				'linkicon' => 'glyphicon glyphicon-plus',
+				'showLabel' => 1,
+				'linkhref' => true
 			];
 		}
 
